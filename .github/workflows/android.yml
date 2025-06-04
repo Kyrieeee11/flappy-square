@@ -1,0 +1,32 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]      # 每次 push 自动打包
+  workflow_dispatch:        # 也支持手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install buildozer
+        run: |
+          python -m pip install --upgrade pip
+          pip install "kivy[base]==2.3.1" buildozer pymunk pillow
+
+      - name: Build debug APK
+        run: |
+          buildozer -v android debug
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flappy-debug-apk
+          path: bin/*-debug*.apk
